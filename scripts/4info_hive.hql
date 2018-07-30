@@ -110,7 +110,7 @@ reason_not_processed INT
 COMMENT 'Request Log'
 PARTITIONED by (dt STRING, svr STRING, hh STRING, min STRING)
 ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE
-LOCATION '${S3_INPUT_BUCKET}/${S3_REQUEST_LOG}/';
+LOCATION '${requests}';
 
 ALTER TABLE adhaven_request_log ADD IF NOT EXISTS PARTITION (dt='${DT}', svr='0201', hh='${HH}', min='00'); 
 ALTER TABLE adhaven_request_log ADD IF NOT EXISTS PARTITION (dt='${DT}', svr='0202', hh='${HH}', min='00'); 
@@ -245,7 +245,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS adhaven_event_log
 COMMENT 'Event Log' 
 PARTITIONED by (dt STRING, svr STRING, hh STRING, min STRING)  
 ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE
-LOCATION '${S3_INPUT_BUCKET}/${S3_EVENT_LOG}/';
+LOCATION '${events}';
 
 --Add partition to adhaven event log  
 
@@ -362,7 +362,7 @@ events array<struct<
 COMMENT 'IMPRESSION ROLLUP'
 PARTITIONED by (y STRING, m STRING, d STRING, h STRING)
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
-LOCATION '${S3_INPUT_BUCKET}/${S3_CONSOLIDATED_REQ_EVENT_LOG}/';
+LOCATION '${consolidate}';
 
 
 SET hive.exec.compress.output=true;
@@ -494,7 +494,7 @@ events array<struct<
 COMMENT 'IMPRESSION ROLLUP'
 PARTITIONED by (y STRING, m STRING, d STRING, h STRING)
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
-LOCATION '${S3_MM_LOG_BUCKET}/${S3_MM_CONSOLIDATE_REQ_EVENT_LOG}/';
+LOCATION '${mmconsolidate}';
 
 INSERT OVERWRITE TABLE MM_CONSOLIDATE_REQUEST_EVENT_LOG PARTITION(y='${y}', m='${m}', d='${d}', h='${HH}')
 SELECT request_ts, placement_id, media_type_key, ip,latitude , longitude ,zip,dma,state, consumer_id,country_abbr,iswifi_y_n,device_os,
